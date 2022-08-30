@@ -1,0 +1,60 @@
+@startuml addproduct
+
+' === Style Tweaks ===
+
+skinparam {
+  Style StrictUML
+  RoundCorner 5
+  ParticipantPadding 10
+  Padding 2
+  SequenceStereotype {
+    Font {
+      Size 10
+      Style plain
+    }
+  }
+}
+
+' === Actors / Participants
+
+actor "User" as user
+participant "MainMenu" as catalogue <<form>>
+participant "dialog : ProductEditor" as productEditor <<form>>
+participant "dao : ProductCollectionDAO" as dao <<data store>>
+participant "simpleListModel : SimpleListModel" as simpleListModel <<data store>>
+participant "p1 : Product" as product <<domain>>
+
+' === Messages ===
+
+catalogue++
+user -> catalogue : click "Add a New Product"
+productEditor++
+
+productEditor -> dao : getCategories()
+dao++
+return categories
+
+productEditor -> simpleListModel : updateItems(categories)
+simpleListModel++
+simpleListModel--
+
+catalogue -> productEditor : setVisible(true)
+
+
+user -> productEditor: enter product details
+user -> productEditor: click "Save"
+create product
+productEditor -> product : <<construct from database>>
+productEditor -> dao : saveProduct(p1)
+
+dao++
+dao--
+
+productEditor --> catalogue
+destroy productEditor
+
+user -> catalogue : click "Exit"
+return
+destroy catalogue
+
+@enduml

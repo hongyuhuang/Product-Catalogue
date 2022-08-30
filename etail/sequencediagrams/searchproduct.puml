@@ -1,0 +1,65 @@
+@startuml searchproduct
+
+' === Style Tweaks ===
+
+skinparam {
+  Style StrictUML
+  RoundCorner 5
+  ParticipantPadding 10
+  Padding 2
+  SequenceStereotype {
+    Font {
+      Size 10
+      Style plain
+    }
+  }
+}
+
+' === Actors / Participants
+
+actor "User" as user
+participant "MainMenu" as catalogue <<form>>
+participant "dialog : ProductViewer" as productViewer <<form>>
+participant "dao : ProductCollectionDAO" as dao <<data store>>
+participant "simpleListModel : SimpleListModel" as simpleListModel <<data store>>
+
+
+' === Messages ===
+user -> catalogue : click "View Products"
+catalogue++
+productViewer++
+
+productViewer -> dao : getProducts()
+dao++
+return products
+
+productViewer -> simpleListModel : updateItems(products)
+simpleListModel++
+simpleListModel--
+
+catalogue -> productViewer : setVisible(true)
+
+
+user -> productViewer : enter product ID
+user -> productViewer : click "Search"
+
+productViewer -> dao : searchBy(productId)
+dao++
+return products
+
+productViewer -> simpleListModel : updateItems(products)
+simpleListModel++
+simpleListModel--
+
+catalogue -> productViewer : setVisible(true)
+
+user -> productViewer : click "Close"
+productViewer --> catalogue 
+destroy productViewer
+
+user -> catalogue : click "Exit"
+return
+destroy catalogue
+ 
+
+@enduml
